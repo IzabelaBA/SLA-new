@@ -1,1418 +1,1420 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete SLA Flow</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f3f3f3;
-            padding: 20px;
-            color: #181818;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1B96FF 0%, #53A0FD 100%);
-            color: white;
-            padding: 24px 32px;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            font-size: 1rem;
-            opacity: 0.9;
-            font-weight: 400;
-        }
-
-        .content {
-            padding: 32px;
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #181818;
-            margin-bottom: 24px;
-        }
-
-        /* Program Search Styles */
-        .search-section {
-            margin-bottom: 32px;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #D8D8D8;
-            border-radius: 6px;
-            font-size: 0.875rem;
-            color: #181818;
-            margin-bottom: 16px;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #1B96FF;
-            box-shadow: 0 0 0 2px rgba(27, 150, 255, 0.1);
-        }
-
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #D8D8D8;
-            border-top: none;
-            border-radius: 0 0 6px 6px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .search-result-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid #F0F0F0;
-        }
-
-        .search-result-item:hover {
-            background: #F8F9FA;
-        }
-
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-result-name {
-            font-weight: 600;
-            color: #181818;
-        }
-
-        .search-result-details {
-            font-size: 0.75rem;
-            color: #706E6B;
-        }
-
-        .selected-program {
-            background: #F8F9FA;
-            border: 1px solid #E5E5E5;
-            border-radius: 6px;
-            padding: 12px 16px;
-            display: none;
-            margin-top: 16px;
-        }
-
-        .selected-program-name {
-            font-weight: 600;
-            color: #181818;
-        }
-
-        .selected-program-details {
-            font-size: 0.75rem;
-            color: #706E6B;
-        }
-
-        .clear-btn {
-            background: none;
-            border: none;
-            color: #706E6B;
-            cursor: pointer;
-            font-size: 1rem;
-            float: right;
-            padding: 4px;
-            border-radius: 4px;
-        }
-
-        .clear-btn:hover {
-            background: #F0F0F0;
-        }
-
-        /* Package Selection Styles */
-        .package-options {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .package-option {
-            border: 2px solid #E5E5E5;
-            border-radius: 8px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .package-option:hover {
-            border-color: #1B96FF;
-            box-shadow: 0 4px 12px rgba(27, 150, 255, 0.1);
-        }
-
-        .package-option.selected {
-            border-color: #0176D3;
-            background: #F8FCFF;
-            box-shadow: 0 4px 12px rgba(1, 118, 211, 0.15);
-        }
-
-        .package-header {
-            display: flex;
-            align-items: center;
-        }
-
-        .package-radio {
-            width: 20px;
-            height: 20px;
-            margin-right: 16px;
-            accent-color: #0176D3;
-            cursor: pointer;
-        }
-
-        .package-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #181818;
-        }
-
-        /* SLA Configuration Styles */
-        .category-section {
-            margin-bottom: 40px;
-        }
-
-        .category-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #E5E5E5;
-        }
-
-        .category-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #181818;
-        }
-
-        .services-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 24px;
-        }
-
-        .services-table th {
-            background: #F8F9FA;
-            padding: 16px 12px;
-            text-align: left;
-            font-weight: 700;
-            font-size: 0.875rem;
-            color: #3E3E3C;
-            border-bottom: 2px solid #E5E5E5;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .services-table td {
-            padding: 16px 12px;
-            border-bottom: 1px solid #E5E5E5;
-            vertical-align: middle;
-        }
-
-        .services-table tbody tr:hover {
-            background: #F8F9FA;
-        }
-
-        .service-name {
-            font-weight: 600;
-            color: #181818;
-            font-size: 0.875rem;
-        }
-
-        .service-description {
-            font-size: 0.75rem;
-            color: #706E6B;
-            margin-top: 4px;
-        }
-
-        .dropdown {
-            background: white;
-            border: 1px solid #D8D8D8;
-            border-radius: 4px;
-            padding: 8px 12px;
-            font-size: 0.875rem;
-            color: #181818;
-            min-width: 120px;
-            cursor: pointer;
-        }
-
-        .dropdown:focus {
-            outline: none;
-            border-color: #1B96FF;
-            box-shadow: 0 0 0 2px rgba(27, 150, 255, 0.1);
-        }
-
-        .include-label {
-            display: flex;
-            align-items: center;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .include-label input {
-            margin-right: 8px;
-        }
-
-        .include-label.checked {
-            color: #04844B;
-        }
-
-        .form-textarea {
-            background: white;
-            border: 1px solid #D8D8D8;
-            border-radius: 4px;
-            padding: 12px 16px;
-            font-size: 0.875rem;
-            color: #181818;
-            width: 100%;
-            font-family: inherit;
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-textarea:focus {
-            outline: none;
-            border-color: #1B96FF;
-            box-shadow: 0 0 0 2px rgba(27, 150, 255, 0.1);
-        }
-
-        .form-textarea::placeholder {
-            color: #706E6B;
-            font-style: italic;
-        }
-
-        /* Step 4 Specific Styles */
-        .details-section {
-            background: #F8F9FA;
-            border: 1px solid #E5E5E5;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 32px;
-        }
-
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        .grid-2-small {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .field-group {
-            margin-bottom: 12px;
-        }
-
-        .field-label {
-            display: block;
-            font-weight: 600;
-            color: #3E3E3C;
-            font-size: 0.875rem;
-            margin-bottom: 4px;
-        }
-
-        .field-value {
-            color: #181818;
-        }
-
-        .field-value.primary {
-            font-weight: 600;
-        }
-
-        .field-value.success {
-            color: #04844B;
-            font-weight: 600;
-        }
-
-        /* Action Styles */
-        .actions {
-            background: #F8F9FA;
-            padding: 24px 32px;
-            border-top: 1px solid #E5E5E5;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.875rem;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: #0176D3;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #014486;
-        }
-
-        .btn-primary:disabled {
-            background: #C9C7C5;
-            color: #706E6B;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #0176D3;
-            border: 1px solid #0176D3;
-        }
-
-        .btn-secondary:hover {
-            background: #F8F9FA;
-        }
-
-        .summary {
-            color: #706E6B;
-            font-size: 0.875rem;
-        }
-
-        .summary strong {
-            color: #181818;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-        }
-
-        /* Step visibility */
-        .step {
-            display: none;
-        }
-
-        .step.active {
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-            }
-            
-            .content {
-                padding: 20px;
-            }
-
-            .services-table {
-                font-size: 0.75rem;
-            }
-            
-            .services-table th,
-            .services-table td {
-                padding: 8px 6px;
-            }
-
-            .grid-2, .grid-2-small {
-                grid-template-columns: 1fr;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete SLA Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f3f3f3;
+            padding: 20px;
+            color: #181818;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1B96FF 0%, #53A0FD 100%);
+            color: white;
+            padding: 24px 32px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .content {
+            padding: 32px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #181818;
+            margin-bottom: 24px;
+        }
+
+        /* Program Search Styles */
+        .search-section {
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #D8D8D8;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: #181818;
+            margin-bottom: 16px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1B96FF;
+            box-shadow: 0 0 0 2px rgba(27, 150, 255, 0.1);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #D8D8D8;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #F0F0F0;
+        }
+
+        .search-result-item:hover {
+            background: #F8F9FA;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-name {
+            font-weight: 600;
+            color: #181818;
+        }
+
+        .search-result-details {
+            font-size: 0.75rem;
+            color: #706E6B;
+        }
+
+        .selected-program {
+            background: #F8F9FA;
+            border: 1px solid #E5E5E5;
+            border-radius: 6px;
+            padding: 12px 16px;
+            display: none;
+            margin-top: 16px;
+        }
+
+        .selected-program-name {
+            font-weight: 600;
+            color: #181818;
+        }
+
+        .selected-program-details {
+            font-size: 0.75rem;
+            color: #706E6B;
+        }
+
+        .clear-btn {
+            background: none;
+            border: none;
+            color: #706E6B;
+            cursor: pointer;
+            font-size: 1rem;
+            float: right;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .clear-btn:hover {
+            background: #F0F0F0;
+        }
+
+        /* Package Selection Styles */
+        .package-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .package-option {
+            border: 2px solid #E5E5E5;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .package-option:hover {
+            border-color: #1B96FF;
+            box-shadow: 0 4px 12px rgba(27, 150, 255, 0.1);
+        }
+
+        .package-option.selected {
+            border-color: #0176D3;
+            background: #F8FCFF;
+            box-shadow: 0 4px 12px rgba(1, 118, 211, 0.15);
+        }
+
+        .package-header {
+            display: flex;
+            align-items: center;
+        }
+
+        .package-radio {
+            width: 20px;
+            height: 20px;
+            margin-right: 16px;
+            accent-color: #0176D3;
+            cursor: pointer;
+        }
+
+        .package-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #181818;
+        }
+
+        /* SLA Configuration Styles */
+        .category-section {
+            margin-bottom: 40px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E5E5;
+        }
+
+        .category-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #181818;
+        }
+
+        .services-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .services-table th {
+            background: #F8F9FA;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #3E3E3C;
+            border-bottom: 2px solid #E5E5E5;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .services-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #E5E5E5;
+            vertical-align: middle;
+        }
+
+        .services-table tbody tr:hover {
+            background: #F8F9FA;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: #181818;
+            font-size: 0.875rem;
+        }
+
+        .service-description {
+            font-size: 0.75rem;
+            color: #706E6B;
+            margin-top: 4px;
+        }
+
+        .dropdown {
+            background: white;
+            border: 1px solid #D8D8D8;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 0.875rem;
+            color: #181818;
+            min-width: 120px;
+            cursor: pointer;
+        }
+
+        .dropdown:focus {
+            outline: none;
+            border-color: #1B96FF;
+            box-shadow: 0 0 0 2px rgba(27, 150, 255, 0.1);
+        }
+
+        .include-label {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .include-label input {
+            margin-right: 8px;
+        }
+
+        .include-label.checked {
+            color: #04844B;
+        }
+
+        .form-textarea {
+            background: white;
+            border: 1px solid #D8D8D8;
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 0.875rem;
+            color: #181818;
+            width: 100%;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #1B96FF;
+            box-shadow: 0 0 0 2px rgba(27, 150, 255, 0.1);
+        }
+
+        .form-textarea::placeholder {
+            color: #706E6B;
+            font-style: italic;
+        }
+
+        /* Step 4 Specific Styles */
+        .details-section {
+            background: #F8F9FA;
+            border: 1px solid #E5E5E5;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .grid-2-small {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .field-group {
+            margin-bottom: 12px;
+        }
+
+        .field-label {
+            display: block;
+            font-weight: 600;
+            color: #3E3E3C;
+            font-size: 0.875rem;
+            margin-bottom: 4px;
+        }
+
+        .field-value {
+            color: #181818;
+        }
+
+        .field-value.primary {
+            font-weight: 600;
+        }
+
+        .field-value.success {
+            color: #04844B;
+            font-weight: 600;
+        }
+
+        /* Action Styles */
+        .actions {
+            background: #F8F9FA;
+            padding: 24px 32px;
+            border-top: 1px solid #E5E5E5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #0176D3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #014486;
+        }
+
+        .btn-primary:disabled {
+            background: #C9C7C5;
+            color: #706E6B;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0176D3;
+            border: 1px solid #0176D3;
+        }
+
+        .btn-secondary:hover {
+            background: #F8F9FA;
+        }
+
+        .summary {
+            color: #706E6B;
+            font-size: 0.875rem;
+        }
+
+        .summary strong {
+            color: #181818;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Step visibility */
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+
+            .services-table {
+                font-size: 0.75rem;
+            }
+            
+            .services-table th,
+            .services-table td {
+                padding: 8px 6px;
+            }
+
+            .grid-2, .grid-2-small {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Step 1: Program Search -->
-    <div id="step1" class="step active">
-        <div class="container">
-            <div class="header">
-                <h1>Create SLA Board</h1>
-            </div>
-
-            <div class="content">
-                <div style="margin-bottom: 32px;">
-                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">🔍 Program Search – Find a program to create its SLA board in Salesforce.</p>
-                </div>
-
-                <div class="search-section">
-                    <h2 class="section-title">Search for a program:</h2>
-                    
-                    <input 
-                        type="text" 
-                        id="programSearch" 
-                        class="search-input"
-                        placeholder="Search by program name or number..."
-                    >
-                    
-                    <div id="searchResults" class="search-results"></div>
-                    
-                    <div id="selectedProgram" class="selected-program">
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div>
-                                <div class="selected-program-name" id="selectedProgramName" style="color: #0176D3; text-decoration: underline; cursor: pointer;" onclick="openSelectedProgram()"></div>
-                                <div class="selected-program-details" id="selectedProgramDetails"></div>
-                            </div>
-                            <button class="clear-btn" onclick="clearSelection()">✕</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="actions">
-                <div class="summary" id="step1Summary"></div>
-                <div>
-                    <button class="btn btn-secondary">Cancel</button>
-                    <button class="btn btn-primary" id="step1Continue" disabled onclick="goToStep2()">Continue</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Step 2: Package Selection -->
-    <div id="step2" class="step">
-        <div class="container">
-            <div class="header">
-                <h1 id="step2Header">Create SLA Board</h1>
-            </div>
-
-            <div class="content">
-                <div style="margin-bottom: 32px;">
-                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">📦 Package Selection - Choose the program package. This will let you use the SLA template that lists the services included in that package.</p>
-                </div>
-
-                <div id="step2ProgramInfo" style="background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                        <span style="color: #3E3E3C; font-size: 0.875rem; font-weight: 600;">Selected Program:</span>
-                    </div>
-                    <div style="font-weight: 600; color: #0176D3; font-size: 1rem; text-decoration: underline; cursor: pointer;" id="step2ProgramName" onclick="openProgramFromStep2()"></div>
-                </div>
-
-                <h2 class="section-title">Select the Program's Package:</h2>
-
-                <div class="package-options">
-                    <div class="package-option" data-package="premium" onclick="selectPackage('premium', this)">
-                        <div class="package-header">
-                            <input type="radio" name="package" value="premium" class="package-radio" id="premium">
-                            <label for="premium" class="package-name">Premium</label>
-                        </div>
-                    </div>
-
-                    <div class="package-option" data-package="core" onclick="selectPackage('core', this)">
-                        <div class="package-header">
-                            <input type="radio" name="package" value="core" class="package-radio" id="core">
-                            <label for="core" class="package-name">Core</label>
-                        </div>
-                    </div>
-
-                    <div class="package-option" data-package="essential" onclick="selectPackage('essential', this)">
-                        <div class="package-header">
-                            <input type="radio" name="package" value="essential" class="package-radio" id="essential">
-                            <label for="essential" class="package-name">Essential</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="actions">
-                <div class="summary" id="step2Summary"></div>
-                <div>
-                    <button class="btn btn-secondary" onclick="goToStep1()">Go Back</button>
-                    <button class="btn btn-primary" id="step2Continue" disabled onclick="goToStep2_5()">Continue</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Step 2.5: Contact Roles Review -->
-    <div id="step2_5" class="step">
-        <div class="container">
-            <div class="header">
-                <h1>SLA Board Creation | Contact Roles Overview</h1>
-            </div>
-
-            <div class="content">
-                <!-- Selected Program Section -->
-                <div style="background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 16px; margin-bottom: 24px; cursor: pointer;" onclick="openProgram()">
-                    <div style="color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Selected Program:</div>
-                    <div style="font-weight: 600; color: #0176D3; font-size: 1rem; text-decoration: underline; margin-bottom: 4px;" id="contactRolesProgramName">TechCorp Affiliate Program</div>
-                    <div style="font-weight: 600; color: #181818; font-size: 0.875rem;" id="contactRolesPackageName">Premium Package</div>
-                </div>
-
-                <div style="margin-bottom: 32px;">
-                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">Before creating the SLA board, review the contact roles linked to the Signed Product. To make changes, go to the Signed Product.</p>
-                </div>
-
-                <h2 class="section-title">Contact Roles</h2>
-
-                <!-- Contact Roles Display -->
-                <div style="border: 1px solid #E5E5E5; border-radius: 6px; overflow: hidden;">
-                    <!-- Contact 1 -->
-                    <div style="padding: 16px; border-bottom: 1px solid #E5E5E5;">
-                        <div style="font-weight: 600; color: #181818; margin-bottom: 8px;">John Smith</div>
-                        <div style="margin-bottom: 4px;">
-                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Email:</span>
-                            <span style="color: #0176D3; font-size: 0.875rem;">john.smith@test.com</span>
-                        </div>
-                        <div style="margin-bottom: 4px;">
-                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Survey Recipient:</span>
-                            <input type="checkbox" disabled style="margin-right: 4px; vertical-align: middle;">
-                        </div>
-                        <div>
-                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Role Role:</span>
-                            <span style="color: #181818; font-size: 0.875rem;">Business (Other)</span>
-                        </div>
-                    </div>
-
-                    <!-- Contact 2 -->
-                    <div style="padding: 16px;">
-                        <div style="font-weight: 600; color: #181818; margin-bottom: 8px;">Alex Johnson</div>
-                        <div style="margin-bottom: 4px;">
-                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Email:</span>
-                            <span style="color: #0176D3; font-size: 0.875rem;">alex.johnson@test2.com</span>
-                        </div>
-                        <div style="margin-bottom: 4px;">
-                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Survey Recipient:</span>
-                            <input type="checkbox" checked disabled style="margin-right: 4px; vertical-align: middle;">
-                        </div>
-                        <div>
-                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Role Role:</span>
-                            <span style="color: #181818; font-size: 0.875rem;">Business (Other)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Link to Signed Product -->
-                <div style="margin-bottom: 24px;">
-                    <a href="#" onclick="openSignedProduct()" style="color: #0176D3; text-decoration: underline; font-size: 0.875rem;">📄 Open Signed Product to edit contact roles</a>
-                </div>
-            </div>
-
-            <div class="actions">
-                <div></div>
-                <div class="button-group">
-                    <button class="btn btn-secondary" onclick="goToStep2()">Go Back</button>
-                    <button class="btn btn-primary" onclick="goToStep3()">Continue</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Step 3: SLA Configuration -->
-    <div id="step3" class="step">
-        <div class="container">
-            <div class="header">
-                <h1 id="step3Header">SLA Configuration</h1>
-            </div>
-
-            <div class="content">
-                <!-- Selected Program Section -->
-                <div style="background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
-                    <div style="color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Selected Program:</div>
-                    <div style="font-weight: 600; color: #0176D3; font-size: 1rem; text-decoration: underline; cursor: pointer; margin-bottom: 4px;" id="step3ProgramName" onclick="openProgram()">TechCorp Affiliate Program</div>
-                    <div style="font-weight: 600; color: #181818; font-size: 0.875rem;" id="step3PackageName">Premium Package</div>
-                </div>
-
-                <div style="margin-bottom: 32px;">
-                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">🎯 SLA Configuration – Review the frequency and occurrence of each service, and choose which services to include for the client. These will appear in your task list after you create the SLA board.</p>
-                </div>
-
-                <!-- All Services -->
-                <div class="category-section">
-                    <table class="services-table">
-                        <thead>
-                            <tr>
-                                <th>Service</th>
-                                <th>Category</th>
-                                <th>Occurrence</th>
-                                <th>Frequency</th>
-                                <th>Include for Client</th>
-                                <th>Reference Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="service-name">Performance Reviews</div>
-                                    <div class="service-description">Monthly analysis of campaign performance and optimization recommendations</div>
-                                </td>
-                                <td>
-                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Optimization</div>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>Included</option>
-                                        <option>Upon Request</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>One Time</option>
-                                        <option>Weekly</option>
-                                        <option>Monthly</option>
-                                        <option>Quarterly</option>
-                                        <option>Bi-Annually</option>
-                                        <option>Annually</option>
-                                        <option>Ongoing</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <label class="include-label checked">
-                                        <input type="checkbox" checked> Yes
-                                    </label>
-                                </td>
-                                <td>
-                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="service-name">Publisher Recommendations</div>
-                                    <div class="service-description">Monthly publisher outreach and partnership recommendations</div>
-                                </td>
-                                <td>
-                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Publisher Management</div>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>Included</option>
-                                        <option>Upon Request</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>One Time</option>
-                                        <option>Weekly</option>
-                                        <option>Monthly</option>
-                                        <option>Quarterly</option>
-                                        <option>Bi-Annually</option>
-                                        <option>Annually</option>
-                                        <option>Ongoing</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <label class="include-label checked">
-                                        <input type="checkbox" checked> Yes
-                                    </label>
-                                </td>
-                                <td>
-                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="service-name">Monthly Check-ins</div>
-                                    <div class="service-description">Regular client calls to discuss performance and strategy</div>
-                                </td>
-                                <td>
-                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Contact and Communication</div>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>Included</option>
-                                        <option>Upon Request</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>One Time</option>
-                                        <option>Weekly</option>
-                                        <option>Monthly</option>
-                                        <option>Quarterly</option>
-                                        <option>Bi-Annually</option>
-                                        <option>Annually</option>
-                                        <option>Ongoing</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <label class="include-label checked">
-                                        <input type="checkbox" checked> Yes
-                                    </label>
-                                </td>
-                                <td>
-                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="service-name">Account Maintenance</div>
-                                    <div class="service-description">Regular account cleanup and maintenance tasks</div>
-                                </td>
-                                <td>
-                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Housekeeping</div>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>Included</option>
-                                        <option>Upon Request</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>One Time</option>
-                                        <option>Weekly</option>
-                                        <option>Monthly</option>
-                                        <option>Quarterly</option>
-                                        <option>Bi-Annually</option>
-                                        <option>Annually</option>
-                                        <option>Ongoing</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <label class="include-label checked">
-                                        <input type="checkbox" checked> Yes
-                                    </label>
-                                </td>
-                                <td>
-                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="service-name">Initial Setup</div>
-                                    <div class="service-description">Complete program setup and configuration</div>
-                                </td>
-                                <td>
-                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Program Launch Support</div>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>Included</option>
-                                        <option>Upon Request</option>
-                                        <option>On Demand</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select class="dropdown">
-                                        <option>One Time</option>
-                                        <option>Weekly</option>
-                                        <option>Monthly</option>
-                                        <option>Quarterly</option>
-                                        <option>Bi-Annually</option>
-                                        <option>Annually</option>
-                                        <option>Ongoing</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <label class="include-label checked">
-                                        <input type="checkbox" checked> Yes
-                                    </label>
-                                </td>
-                                <td>
-                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Additional Services Section -->
-                <div class="category-section">
-                    <div class="category-header">
-                        <h2 class="category-title">Additional Services</h2>
-                    </div>
-                    
-                    <!-- Custom Services Table (initially hidden) -->
-                    <table class="services-table" id="customServicesTable" style="display: none;">
-                        <thead>
-                            <tr>
-                                <th>Service</th>
-                                <th>Category</th>
-                                <th>Occurrence</th>
-                                <th>Frequency</th>
-                                <th>Include for Client</th>
-                                <th>Reference Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customServicesBody">
-                        </tbody>
-                    </table>
-                    
-                    <div id="addServiceContainer" style="background: #F8F9FA; border: 1px dashed #D8D8D8; border-radius: 6px; padding: 24px; text-align: center;">
-                        <button class="btn btn-secondary" style="margin-bottom: 16px;" onclick="showAddServiceForm()">+ Add Custom Service</button>
-                        <p style="color: #706E6B; font-size: 0.875rem;">Add any custom services specific to this client's needs</p>
-                    </div>
-
-                    <!-- Add Service Form (initially hidden) -->
-                    <div id="addServiceForm" style="display: none; background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 24px; margin-top: 16px;">
-                        <h3 style="margin-bottom: 16px; color: #181818; font-size: 1rem; font-weight: 600;">Add New Custom Service</h3>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                            <div>
-                                <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Service Name</label>
-                                <input type="text" id="customServiceName" class="search-input" style="margin-bottom: 0;" placeholder="Enter service name...">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Category</label>
-                                <div style="background: white; border: 1px solid #D8D8D8; border-radius: 4px; padding: 8px 12px; font-size: 0.875rem; color: #181818; min-width: 120px;">Other</div>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Reference Date</label>
-                            <input type="date" id="customServiceDate" class="search-input" style="margin-bottom: 0; width: 50%;">
-                        </div>
-                        
-                        <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Service Description</label>
-                            <textarea id="customServiceDescription" class="form-textarea" placeholder="Describe what this service includes..." rows="3"></textarea>
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                            <div>
-                                <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Occurrence</label>
-                                <select id="customServiceOccurrence" class="dropdown" style="width: 100%;">
-                                    <option>Included</option>
-                                    <option>Upon Request</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Frequency</label>
-                                <select id="customServiceFrequency" class="dropdown" style="width: 100%;">
-                                    <option>One Time</option>
-                                    <option>Weekly</option>
-                                    <option>Monthly</option>
-                                    <option>Quarterly</option>
-                                    <option>Bi-Annually</option>
-                                    <option>Annually</option>
-                                    <option>Ongoing</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="display: flex; align-items: center; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-top: 20px;">
-                                    <input type="checkbox" id="customServiceInclude" checked style="margin-right: 8px;"> Include for Client
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                            <button class="btn btn-secondary" onclick="cancelAddService()">Cancel</button>
-                            <button class="btn btn-primary" onclick="addCustomService()">Add Service</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Comments Section -->
-                <div class="category-section">
-                    <div class="category-header">
-                        <h2 class="category-title">Client Notes & Context</h2>
-                    </div>
-                    
-                    <div>
-                        <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 8px;">
-                            📝 Client Information
-                        </label>
-                        <textarea 
-                            class="form-textarea" 
-                            placeholder="e.g., Client prefers calls on Tuesdays • Challenges: low traffic on website XYZ • Success Metrics: 10% sales YoY • Any other important context..."
-                            rows="5"
-                        ></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="actions">
-                <div class="summary"></div>
-                <div>
-                    <button class="btn btn-secondary" onclick="goToStep2()">Go Back</button>
-                    <button class="btn btn-primary" style="margin-left: 12px;" onclick="createSLA()">Create SLA Board</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Step 4: SLA Board Overview -->
-    <div id="step4" class="step">
-        <div class="container">
-            <div class="header">
-                <h1>SLA Board Summary</h1>
-            </div>
-
-            <div class="content">
-                <div style="margin-bottom: 32px;">
-                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">✅ SLA Status - SLA has been successfully created and configured.</p>
-                </div>
-
-                <!-- SLA Details -->
-                <div class="details-section">
-                    <h2 class="section-title">SLA Details</h2>
-                    
-                    <div class="grid-2">
-                        <div class="field-group">
-                            <label class="field-label">SLA Board Name</label>
-                            <div class="field-value primary" id="slaBoardName">SLA-TechCorp</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">SLA Board Owner</label>
-                            <div class="field-value">Chandler Bing</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Creation Date</label>
-                            <div class="field-value" id="creationDate">05/06/2025</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Program Information -->
-                <div class="details-section">
-                    <h2 class="section-title">Program Information</h2>
-                    
-                    <div class="grid-2-small">
-                        <div class="field-group">
-                            <label class="field-label">Package</label>
-                            <div class="field-value" id="summaryPackage">Premium</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Program Name</label>
-                            <div class="field-value" style="color: #0176D3; text-decoration: underline; cursor: pointer;" id="summaryProgramName" onclick="alert('This would open the program details page')">TechCorp Affiliate Program</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Awin ID</label>
-                            <div class="field-value">12345</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Business Unit</label>
-                            <div class="field-value">UK</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Business Segment</label>
-                            <div class="field-value">Managed Services</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Account Manager</label>
-                            <div class="field-value">Chandler Bing</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Program Status</label>
-                            <div class="field-value success">Live</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="actions">
-                <div class="summary"></div>
-                <div class="button-group">
-                    <button class="btn btn-secondary" onclick="editSLA()">Edit SLA</button>
-                    <button class="btn btn-secondary" onclick="slaBoardsOverview()">SLA Boards Overview</button>
-                    <button class="btn btn-primary" onclick="goToStep1()">Create New SLA Board</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Global variables
-        let selectedProgramData = null;
-        let selectedPackage = null;
-
-        // Mock program data
-        const programs = [
-            { id: 123, name: 'TechCorp Affiliate Program', client: 'TechCorp Inc.' },
-            { id: 456, name: 'Fashion Forward Partners', client: 'Fashion Co.' },
-            { id: 789, name: 'Health & Wellness Network', client: 'Wellness Ltd.' },
-            { id: 321, name: 'Travel Deals Program', client: 'Travel Agency' },
-            { id: 654, name: 'Software Solutions Affiliate', client: 'SoftTech' }
-        ];
-
-        // Step 1: Program Search functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const programSearch = document.getElementById('programSearch');
-            const searchResults = document.getElementById('searchResults');
-
-            if (programSearch && searchResults) {
-                programSearch.addEventListener('input', function() {
-                    const query = this.value.toLowerCase().trim();
-                    
-                    if (query.length < 1) {
-                        searchResults.style.display = 'none';
-                        return;
-                    }
-
-                    const filtered = programs.filter(program => 
-                        program.name.toLowerCase().includes(query) ||
-                        program.id.toString().includes(query) ||
-                        program.client.toLowerCase().includes(query)
-                    );
-
-                    if (filtered.length > 0) {
-                        searchResults.innerHTML = filtered.map(program => 
-                            `<div class="search-result-item" onclick="selectProgram(${program.id}, '${program.name.replace(/'/g, "\\'")}', '${program.client.replace(/'/g, "\\'")}')">
-                                <div class="search-result-name">${program.name}</div>
-                                <div class="search-result-details">${program.client}</div>
-                            </div>`
-                        ).join('');
-                        searchResults.style.display = 'block';
-                    } else {
-                        searchResults.innerHTML = '<div class="search-result-item" style="cursor: default;">No programs found</div>';
-                        searchResults.style.display = 'block';
-                    }
-                });
-
-                // Hide search results when clicking outside
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('.search-section')) {
-                        searchResults.style.display = 'none';
-                    }
-                });
-            }
-
-            // Set default date for custom service
-            const today = new Date().toISOString().split('T')[0];
-            const customServiceDate = document.getElementById('customServiceDate');
-            if (customServiceDate) {
-                customServiceDate.value = today;
-            }
-
-            // Initialize step 3 functionality if we're on that step
-            initializeStep3();
-        });
-
-        // Program selection function
-        function selectProgram(id, name, client) {
-            selectedProgramData = { id, name, client };
-            
-            // Update UI elements
-            const selectedProgramName = document.getElementById('selectedProgramName');
-            const selectedProgramDetails = document.getElementById('selectedProgramDetails');
-            const selectedProgram = document.getElementById('selectedProgram');
-            const searchResults = document.getElementById('searchResults');
-            const programSearch = document.getElementById('programSearch');
-            const step1Continue = document.getElementById('step1Continue');
-
-            if (selectedProgramName) selectedProgramName.textContent = name;
-            if (selectedProgramDetails) selectedProgramDetails.textContent = client;
-            if (selectedProgram) selectedProgram.style.display = 'block';
-            if (searchResults) searchResults.style.display = 'none';
-            if (programSearch) programSearch.value = '';
-            if (step1Continue) step1Continue.disabled = false;
-        }
-
-        // Clear selection function
-        function clearSelection() {
-            selectedProgramData = null;
-            const selectedProgram = document.getElementById('selectedProgram');
-            const step1Continue = document.getElementById('step1Continue');
-            
-            if (selectedProgram) selectedProgram.style.display = 'none';
-            if (step1Continue) step1Continue.disabled = true;
-        }
-
-        // Step 2: Package Selection
-        function selectPackage(packageType, element) {
-            selectedPackage = packageType;
-            
-            // Remove selection from all options
-            document.querySelectorAll('.package-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // Add selection to clicked option
-            element.classList.add('selected');
-            const radioInput = element.querySelector('input[type="radio"]');
-            if (radioInput) radioInput.checked = true;
-            
-            // Enable continue button
-            const step2Continue = document.getElementById('step2Continue');
-            if (step2Continue) step2Continue.disabled = false;
-        }
-
-        // Navigation functions
-        function goToStep1() {
-            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-            document.getElementById('step1').classList.add('active');
-            window.scrollTo(0, 0);
-        }
-
-        function goToStep2() {
-            if (selectedProgramData) {
-                // Update step 2 with program info
-                const step2ProgramName = document.getElementById('step2ProgramName');
-                if (step2ProgramName) {
-                    step2ProgramName.textContent = selectedProgramData.name;
-                }
-                
-                // Show step 2
-                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-                document.getElementById('step2').classList.add('active');
-                window.scrollTo(0, 0);
-            }
-        }
-
-        function goToStep2_5() {
-            if (selectedProgramData && selectedPackage) {
-                // Update contact roles step with program and package info
-                const contactRolesProgramName = document.getElementById('contactRolesProgramName');
-                const contactRolesPackageName = document.getElementById('contactRolesPackageName');
-                
-                if (contactRolesProgramName) {
-                    contactRolesProgramName.textContent = selectedProgramData.name;
-                }
-                if (contactRolesPackageName) {
-                    contactRolesPackageName.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1) + ' Package';
-                }
-                
-                // Show contact roles step
-                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-                document.getElementById('step2_5').classList.add('active');
-                window.scrollTo(0, 0);
-            }
-        }
-
-        function goToStep3() {
-            if (selectedProgramData && selectedPackage) {
-                // Update step 3 with program and package info
-                const step3ProgramName = document.getElementById('step3ProgramName');
-                const step3PackageName = document.getElementById('step3PackageName');
-                
-                if (step3ProgramName) step3ProgramName.textContent = selectedProgramData.name;
-                if (step3PackageName) step3PackageName.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1) + ' Package';
-                
-                // Show step 3
-                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-                document.getElementById('step3').classList.add('active');
-                window.scrollTo(0, 0);
-                
-                // Initialize step 3 functionality
-                initializeStep3();
-            }
-        }
-
-        function createSLA() {
-            if (selectedProgramData && selectedPackage) {
-                // Update step 4 with program and package info
-                const slaBoardName = document.getElementById('slaBoardName');
-                const summaryProgramName = document.getElementById('summaryProgramName');
-                const summaryPackage = document.getElementById('summaryPackage');
-                
-                if (slaBoardName) slaBoardName.textContent = 'SLA-' + selectedProgramData.name.split(' ')[0];
-                if (summaryProgramName) summaryProgramName.textContent = selectedProgramData.name;
-                if (summaryPackage) summaryPackage.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1);
-                
-                // Show step 4
-                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-                document.getElementById('step4').classList.add('active');
-                window.scrollTo(0, 0);
-            }
-        }
-
-        function editSLA() {
-            // Go back to step 3 (SLA Configuration)
-            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-            document.getElementById('step3').classList.add('active');
-            window.scrollTo(0, 0);
-        }
-
-        function slaBoardsOverview() {
-            alert('This would take you to the SLA Boards Overview showing all programs and SLA boards.');
-        }
-
-        // Step 3: SLA Configuration functionality
-        function initializeStep3() {
-            // Initialize checkbox functionality
-            document.querySelectorAll('.include-label input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const label = this.closest('.include-label');
-                    if (this.checked) {
-                        label.classList.add('checked');
-                    } else {
-                        label.classList.remove('checked');
-                    }
-                });
-            });
-        }
-
-        // Custom Service Functions
-        function showAddServiceForm() {
-            const addServiceContainer = document.getElementById('addServiceContainer');
-            const addServiceForm = document.getElementById('addServiceForm');
-            
-            if (addServiceContainer) addServiceContainer.style.display = 'none';
-            if (addServiceForm) addServiceForm.style.display = 'block';
-        }
-
-        function cancelAddService() {
-            const addServiceForm = document.getElementById('addServiceForm');
-            const addServiceContainer = document.getElementById('addServiceContainer');
-            
-            if (addServiceForm) addServiceForm.style.display = 'none';
-            if (addServiceContainer) addServiceContainer.style.display = 'block';
-            clearServiceForm();
-        }
-
-        function clearServiceForm() {
-            const customServiceName = document.getElementById('customServiceName');
-            const customServiceDescription = document.getElementById('customServiceDescription');
-            const customServiceOccurrence = document.getElementById('customServiceOccurrence');
-            const customServiceFrequency = document.getElementById('customServiceFrequency');
-            const customServiceInclude = document.getElementById('customServiceInclude');
-            const customServiceDate = document.getElementById('customServiceDate');
-            
-            if (customServiceName) customServiceName.value = '';
-            if (customServiceDescription) customServiceDescription.value = '';
-            if (customServiceOccurrence) customServiceOccurrence.selectedIndex = 0;
-            if (customServiceFrequency) customServiceFrequency.selectedIndex = 0;
-            if (customServiceInclude) customServiceInclude.checked = true;
-            if (customServiceDate) {
-                const today = new Date().toISOString().split('T')[0];
-                customServiceDate.value = today;
-            }
-        }
-
-        function addCustomService() {
-            const name = document.getElementById('customServiceName').value.trim();
-            const description = document.getElementById('customServiceDescription').value.trim();
-            const category = "Other";
-            const occurrence = document.getElementById('customServiceOccurrence').value;
-            const frequency = document.getElementById('customServiceFrequency').value;
-            const include = document.getElementById('customServiceInclude').checked;
-            const startDate = document.getElementById('customServiceDate').value;
-
-            if (!name) {
-                alert('Please enter a service name');
-                return;
-            }
-
-            // Format the start date
-            const formattedDate = new Date(startDate).toLocaleDateString('en-US', {
-                month: '2-digit',
-                day: '2-digit',
-                year: 'numeric'
-            });
-
-            // Add row to custom services table
-            const customServicesBody = document.getElementById('customServicesBody');
-            const customServicesTable = document.getElementById('customServicesTable');
-            
-            if (customServicesBody) {
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>
-                        <div class="service-name">${name}</div>
-                        <div class="service-description">${description}</div>
-                    </td>
-                    <td>
-                        <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">${category}</div>
-                    </td>
-                    <td>
-                        <select class="dropdown">
-                            <option ${occurrence === 'Included' ? 'selected' : ''}>Included</option>
-                            <option ${occurrence === 'Upon Request' ? 'selected' : ''}>Upon Request</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select class="dropdown">
-                            <option ${frequency === 'One Time' ? 'selected' : ''}>One Time</option>
-                            <option ${frequency === 'Weekly' ? 'selected' : ''}>Weekly</option>
-                            <option ${frequency === 'Monthly' ? 'selected' : ''}>Monthly</option>
-                            <option ${frequency === 'Quarterly' ? 'selected' : ''}>Quarterly</option>
-                            <option ${frequency === 'Bi-Annually' ? 'selected' : ''}>Bi-Annually</option>
-                            <option ${frequency === 'Annually' ? 'selected' : ''}>Annually</option>
-                            <option ${frequency === 'Ongoing' ? 'selected' : ''}>Ongoing</option>
-                        </select>
-                    </td>
-                    <td>
-                        <label class="include-label ${include ? 'checked' : ''}">
-                            <input type="checkbox" ${include ? 'checked' : ''}> Yes
-                        </label>
-                    </td>
-                    <td>
-                        <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">${formattedDate}</div>
-                    </td>
-                    <td>
-                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem;" onclick="removeCustomService(this)">Remove</button>
-                    </td>
-                `;
-
-                customServicesBody.appendChild(newRow);
-
-                // Add event listener to the new checkbox
-                const newCheckbox = newRow.querySelector('.include-label input[type="checkbox"]');
-                if (newCheckbox) {
-                    newCheckbox.addEventListener('change', function() {
-                        const label = this.closest('.include-label');
-                        if (this.checked) {
-                            label.classList.add('checked');
-                        } else {
-                            label.classList.remove('checked');
-                        }
-                    });
-                }
-            }
-
-            // Show the custom services table
-            if (customServicesTable) customServicesTable.style.display = 'table';
-
-            // Hide form and show add button
-            cancelAddService();
-        }
-
-        function removeCustomService(button) {
-            const row = button.closest('tr');
-            if (row) row.remove();
-            
-            // Hide table if no custom services remain
-            const customServicesBody = document.getElementById('customServicesBody');
-            const customServicesTable = document.getElementById('customServicesTable');
-            
-            if (customServicesBody && customServicesBody.children.length === 0) {
-                if (customServicesTable) customServicesTable.style.display = 'none';
-            }
-        }
-
-        // Contact Roles Functions
-        function openProgram() {
-            alert('This would open the ' + (selectedProgramData ? selectedProgramData.name : 'program') + ' details page.');
-        }
-
-        function openSelectedProgram() {
-            alert('This would open the ' + (selectedProgramData ? selectedProgramData.name : 'program') + ' details page.');
-        }
-
-        function openProgramFromStep2() {
-            alert('This would open the ' + (selectedProgramData ? selectedProgramData.name : 'program') + ' details page.');
-        }
-
-        function openSignedProduct() {
-            alert('This would open the Signed Product record where you can edit contact roles.');
-        }
-    </script>
+    <!-- Step 1: Program Search -->
+    <div id="step1" class="step active">
+        <div class="container">
+            <div class="header">
+                <h1>Create SLA Board</h1>
+            </div>
+
+            <div class="content">
+                <div style="margin-bottom: 32px;">
+                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">🔍 Program Search – Find a program to create its SLA board in Salesforce.</p>
+                </div>
+
+                <div class="search-section">
+                    <h2 class="section-title">Search for a program:</h2>
+                    
+                    <input 
+                        type="text" 
+                        id="programSearch" 
+                        class="search-input"
+                        placeholder="Search by program name or number..."
+                    >
+                    
+                    <div id="searchResults" class="search-results"></div>
+                    
+                    <div id="selectedProgram" class="selected-program">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div class="selected-program-name" id="selectedProgramName" style="color: #0176D3; text-decoration: underline; cursor: pointer;" onclick="openSelectedProgram()"></div>
+                                <div class="selected-program-details" id="selectedProgramDetails"></div>
+                            </div>
+                            <button class="clear-btn" onclick="clearSelection()">✕</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <div class="summary" id="step1Summary"></div>
+                <div>
+                    <button class="btn btn-secondary">Cancel</button>
+                    <button class="btn btn-primary" id="step1Continue" disabled onclick="goToStep2()">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2: Package Selection -->
+    <div id="step2" class="step">
+        <div class="container">
+            <div class="header">
+                <h1 id="step2Header">Create SLA Board</h1>
+            </div>
+
+            <div class="content">
+                <div style="margin-bottom: 32px;">
+                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">📦 Package Selection - Choose the program package. This will let you use the SLA template that lists the services included in that package.</p>
+                </div>
+
+                <div id="step2ProgramInfo" style="background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                        <span style="color: #3E3E3C; font-size: 0.875rem; font-weight: 600;">Selected Program:</span>
+                    </div>
+                    <div style="font-weight: 600; color: #0176D3; font-size: 1rem; text-decoration: underline; cursor: pointer;" id="step2ProgramName" onclick="openProgramFromStep2()"></div>
+                </div>
+
+                <h2 class="section-title">Select the Program's Package:</h2>
+
+                <div class="package-options">
+                    <div class="package-option" data-package="premium" onclick="selectPackage('premium', this)">
+                        <div class="package-header">
+                            <input type="radio" name="package" value="premium" class="package-radio" id="premium">
+                            <label for="premium" class="package-name">Premium</label>
+                        </div>
+                    </div>
+
+                    <div class="package-option" data-package="core" onclick="selectPackage('core', this)">
+                        <div class="package-header">
+                            <input type="radio" name="package" value="core" class="package-radio" id="core">
+                            <label for="core" class="package-name">Core</label>
+                        </div>
+                    </div>
+
+                    <div class="package-option" data-package="essential" onclick="selectPackage('essential', this)">
+                        <div class="package-header">
+                            <input type="radio" name="package" value="essential" class="package-radio" id="essential">
+                            <label for="essential" class="package-name">Essential</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <div class="summary" id="step2Summary"></div>
+                <div>
+                    <button class="btn btn-secondary" onclick="goToStep1()">Go Back</button>
+                    <button class="btn btn-primary" id="step2Continue" disabled onclick="goToStep2_5()">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2.5: Contact Roles Review -->
+    <div id="step2_5" class="step">
+        <div class="container">
+            <div class="header">
+                <h1>SLA Board Creation | Contact Roles Overview</h1>
+            </div>
+
+            <div class="content">
+                <!-- Selected Program Section -->
+                <div style="background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 16px; margin-bottom: 24px; cursor: pointer;" onclick="openProgram()">
+                    <div style="color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Selected Program:</div>
+                    <div style="font-weight: 600; color: #0176D3; font-size: 1rem; text-decoration: underline; margin-bottom: 4px;" id="contactRolesProgramName">TechCorp Affiliate Program</div>
+                    <div style="font-weight: 600; color: #181818; font-size: 0.875rem;" id="contactRolesPackageName">Premium Package</div>
+                </div>
+
+                <div style="margin-bottom: 32px;">
+                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">Before creating the SLA board, review the contact roles linked to the Signed Product. To make changes, go to the Signed Product.</p>
+                </div>
+
+                <h2 class="section-title">Contact Roles</h2>
+
+                <!-- Contact Roles Display -->
+                <div style="border: 1px solid #E5E5E5; border-radius: 6px; overflow: hidden;">
+                    <!-- Contact 1 -->
+                    <div style="padding: 16px; border-bottom: 1px solid #E5E5E5;">
+                        <div style="font-weight: 600; color: #181818; margin-bottom: 8px;">John Smith</div>
+                        <div style="margin-bottom: 4px;">
+                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Email:</span>
+                            <span style="color: #0176D3; font-size: 0.875rem;">john.smith@test.com</span>
+                        </div>
+                        <div style="margin-bottom: 4px;">
+                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Survey Recipient:</span>
+                            <input type="checkbox" disabled style="margin-right: 4px; vertical-align: middle;">
+                        </div>
+                        <div>
+                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Role Role:</span>
+                            <span style="color: #181818; font-size: 0.875rem;">Business (Other)</span>
+                        </div>
+                    </div>
+
+                    <!-- Contact 2 -->
+                    <div style="padding: 16px;">
+                        <div style="font-weight: 600; color: #181818; margin-bottom: 8px;">Alex Johnson</div>
+                        <div style="margin-bottom: 4px;">
+                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Email:</span>
+                            <span style="color: #0176D3; font-size: 0.875rem;">alex.johnson@test2.com</span>
+                        </div>
+                        <div style="margin-bottom: 4px;">
+                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Survey Recipient:</span>
+                            <input type="checkbox" checked disabled style="margin-right: 4px; vertical-align: middle;">
+                        </div>
+                        <div>
+                            <span style="color: #3E3E3C; font-size: 0.875rem; display: inline-block; width: 180px;">Contact Role Role:</span>
+                            <span style="color: #181818; font-size: 0.875rem;">Business (Other)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Link to Signed Product -->
+                <div style="margin-bottom: 24px;">
+                    <a href="#" onclick="openSignedProduct()" style="color: #0176D3; text-decoration: underline; font-size: 0.875rem;">📄 Open Signed Product to edit contact roles</a>
+                </div>
+            </div>
+
+            <div class="actions">
+                <div></div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep2()">Go Back</button>
+                    <button class="btn btn-primary" onclick="goToStep3()">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: SLA Configuration -->
+    <div id="step3" class="step">
+        <div class="container">
+            <div class="header">
+                <h1 id="step3Header">SLA Configuration</h1>
+            </div>
+
+            <div class="content">
+                <!-- Selected Program Section -->
+                <div style="background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
+                    <div style="color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Selected Program:</div>
+                    <div style="font-weight: 600; color: #0176D3; font-size: 1rem; text-decoration: underline; cursor: pointer; margin-bottom: 4px;" id="step3ProgramName" onclick="openProgram()">TechCorp Affiliate Program</div>
+                    <div style="font-weight: 600; color: #181818; font-size: 0.875rem;" id="step3PackageName">Premium Package</div>
+                </div>
+
+                <div style="margin-bottom: 32px;">
+                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">🎯 SLA Configuration – Review the frequency and occurrence of each service, and choose which services to include for the client. These will appear in your task list after you create the SLA board.</p>
+                </div>
+
+                <!-- All Services -->
+                <div class="category-section">
+                    <table class="services-table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Category</th>
+                                <th>Occurrence</th>
+                                <th>Frequency</th>
+                                <th>Include for Client</th>
+                                <th>Reference Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="service-name">Performance Reviews</div>
+                                    <div class="service-description">Monthly analysis of campaign performance and optimization recommendations</div>
+                                </td>
+                                <td>
+                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Optimization</div>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>Included</option>
+                                        <option>Upon Request</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>One Time</option>
+                                        <option>Weekly</option>
+                                        <option>Monthly</option>
+                                        <option>Quarterly</option>
+                                        <option>Bi-Annually</option>
+                                        <option>Annually</option>
+                                        <option>Ongoing</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <label class="include-label checked">
+                                        <input type="checkbox" checked> Yes
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="service-name">Publisher Recommendations</div>
+                                    <div class="service-description">Monthly publisher outreach and partnership recommendations</div>
+                                </td>
+                                <td>
+                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Publisher Management</div>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>Included</option>
+                                        <option>Upon Request</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>One Time</option>
+                                        <option>Weekly</option>
+                                        <option>Monthly</option>
+                                        <option>Quarterly</option>
+                                        <option>Bi-Annually</option>
+                                        <option>Annually</option>
+                                        <option>Ongoing</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <label class="include-label checked">
+                                        <input type="checkbox" checked> Yes
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="service-name">Monthly Check-ins</div>
+                                    <div class="service-description">Regular client calls to discuss performance and strategy</div>
+                                </td>
+                                <td>
+                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Contact and Communication</div>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>Included</option>
+                                        <option>Upon Request</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>One Time</option>
+                                        <option>Weekly</option>
+                                        <option>Monthly</option>
+                                        <option>Quarterly</option>
+                                        <option>Bi-Annually</option>
+                                        <option>Annually</option>
+                                        <option>Ongoing</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <label class="include-label checked">
+                                        <input type="checkbox" checked> Yes
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="service-name">Account Maintenance</div>
+                                    <div class="service-description">Regular account cleanup and maintenance tasks</div>
+                                </td>
+                                <td>
+                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Housekeeping</div>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>Included</option>
+                                        <option>Upon Request</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>One Time</option>
+                                        <option>Weekly</option>
+                                        <option>Monthly</option>
+                                        <option>Quarterly</option>
+                                        <option>Bi-Annually</option>
+                                        <option>Annually</option>
+                                        <option>Ongoing</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <label class="include-label checked">
+                                        <input type="checkbox" checked> Yes
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="service-name">Initial Setup</div>
+                                    <div class="service-description">Complete program setup and configuration</div>
+                                </td>
+                                <td>
+                                    <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">Program Launch Support</div>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>Included</option>
+                                        <option>Upon Request</option>
+                                        <option>On Demand</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="dropdown">
+                                        <option>One Time</option>
+                                        <option>Weekly</option>
+                                        <option>Monthly</option>
+                                        <option>Quarterly</option>
+                                        <option>Bi-Annually</option>
+                                        <option>Annually</option>
+                                        <option>Ongoing</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <label class="include-label checked">
+                                        <input type="checkbox" checked> Yes
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="date" class="dropdown" style="width: 100%;" value="2025-06-05">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Additional Services Section -->
+                <div class="category-section">
+                    <div class="category-header">
+                        <h2 class="category-title">Additional Services</h2>
+                    </div>
+                    
+                    <!-- Custom Services Table (initially hidden) -->
+                    <table class="services-table" id="customServicesTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Category</th>
+                                <th>Occurrence</th>
+                                <th>Frequency</th>
+                                <th>Include for Client</th>
+                                <th>Reference Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customServicesBody">
+                        </tbody>
+                    </table>
+                    
+                    <div id="addServiceContainer" style="background: #F8F9FA; border: 1px dashed #D8D8D8; border-radius: 6px; padding: 24px; text-align: center;">
+                        <button class="btn btn-secondary" style="margin-bottom: 16px;" onclick="showAddServiceForm()">+ Add Custom Service</button>
+                        <p style="color: #706E6B; font-size: 0.875rem;">Add any custom services specific to this client's needs</p>
+                    </div>
+
+                    <!-- Add Service Form (initially hidden) -->
+                    <div id="addServiceForm" style="display: none; background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 24px; margin-top: 16px;">
+                        <h3 style="margin-bottom: 16px; color: #181818; font-size: 1rem; font-weight: 600;">Add New Custom Service</h3>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Service Name</label>
+                                <input type="text" id="customServiceName" class="search-input" style="margin-bottom: 0;" placeholder="Enter service name...">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Category</label>
+                                <div style="background: white; border: 1px solid #D8D8D8; border-radius: 4px; padding: 8px 12px; font-size: 0.875rem; color: #181818; min-width: 120px;">Other</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Reference Date</label>
+                            <input type="date" id="customServiceDate" class="search-input" style="margin-bottom: 0; width: 50%;">
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Service Description</label>
+                            <textarea id="customServiceDescription" class="form-textarea" placeholder="Describe what this service includes..." rows="3"></textarea>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <div>
+                                <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Occurrence</label>
+                                <select id="customServiceOccurrence" class="dropdown" style="width: 100%;">
+                                    <option>Included</option>
+                                    <option>Upon Request</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Frequency</label>
+                                <select id="customServiceFrequency" class="dropdown" style="width: 100%;">
+                                    <option>One Time</option>
+                                    <option>Weekly</option>
+                                    <option>Monthly</option>
+                                    <option>Quarterly</option>
+                                    <option>Bi-Annually</option>
+                                    <option>Annually</option>
+                                    <option>Ongoing</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: flex; align-items: center; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-top: 20px;">
+                                    <input type="checkbox" id="customServiceInclude" checked style="margin-right: 8px;"> Include for Client
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                            <button class="btn btn-secondary" onclick="cancelAddService()">Cancel</button>
+                            <button class="btn btn-primary" onclick="addCustomService()">Add Service</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comments Section -->
+                <div class="category-section">
+                    <div class="category-header">
+                        <h2 class="category-title">Client Notes & Context</h2>
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 8px;">
+                            📝 Client Information
+                        </label>
+                        <textarea 
+                            class="form-textarea" 
+                            placeholder="e.g., Client prefers calls on Tuesdays • Challenges: low traffic on website XYZ • Success Metrics: 10% sales YoY • Any other important context..."
+                            rows="5"
+                        ></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <div class="summary"></div>
+                <div>
+                    <button class="btn btn-secondary" onclick="goToStep2()">Go Back</button>
+                    <button class="btn btn-primary" style="margin-left: 12px;" onclick="createSLA()">Create SLA Board</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: SLA Board Overview -->
+    <div id="step4" class="step">
+        <div class="container">
+            <div class="header">
+                <h1>SLA Board Summary</h1>
+            </div>
+
+            <div class="content">
+                <div style="margin-bottom: 32px;">
+                    <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">✅ SLA Status - SLA has been successfully created and configured.</p>
+                </div>
+
+                <!-- SLA Details -->
+                <div class="details-section">
+                    <h2 class="section-title">SLA Details</h2>
+                    
+                    <div class="grid-2">
+                        <div class="field-group">
+                            <label class="field-label">SLA Board Name</label>
+                            <div class="field-value primary" id="slaBoardName">SLA-TechCorp</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">SLA Board Owner</label>
+                            <div class="field-value">Chandler Bing</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Creation Date</label>
+                            <div class="field-value" id="creationDate">05/06/2025</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Program Information -->
+                <div class="details-section">
+                    <h2 class="section-title">Program Information</h2>
+                    
+                    <div class="grid-2-small">
+                        <div class="field-group">
+                            <label class="field-label">Package</label>
+                            <div class="field-value" id="summaryPackage">Premium</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Program Name</label>
+                            <div class="field-value" style="color: #0176D3; text-decoration: underline; cursor: pointer;" id="summaryProgramName" onclick="alert('This would open the program details page')">TechCorp Affiliate Program</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Awin ID</label>
+                            <div class="field-value">12345</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Business Unit</label>
+                            <div class="field-value">UK</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Business Segment</label>
+                            <div class="field-value">Managed Services</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Account Manager</label>
+                            <div class="field-value">Chandler Bing</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Program Status</label>
+                            <div class="field-value success">Live</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <div class="summary"></div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="editSLA()">Edit SLA</button>
+                    <button class="btn btn-secondary" onclick="slaBoardsOverview()">SLA Boards Overview</button>
+                    <button class="btn btn-primary" onclick="goToStep1()">Create New SLA Board</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedProgramData = null;
+        let selectedPackage = null;
+
+        // Mock program data
+        const programs = [
+            { id: 123, name: 'TechCorp Affiliate Program', client: 'TechCorp Inc.' },
+            { id: 456, name: 'Fashion Forward Partners', client: 'Fashion Co.' },
+            { id: 789, name: 'Health & Wellness Network', client: 'Wellness Ltd.' },
+            { id: 321, name: 'Travel Deals Program', client: 'Travel Agency' },
+            { id: 654, name: 'Software Solutions Affiliate', client: 'SoftTech' }
+        ];
+
+        // Step 1: Program Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const programSearch = document.getElementById('programSearch');
+            const searchResults = document.getElementById('searchResults');
+
+            if (programSearch && searchResults) {
+                programSearch.addEventListener('input', function() {
+                    const query = this.value.toLowerCase().trim();
+                    
+                    if (query.length < 1) {
+                        searchResults.style.display = 'none';
+                        return;
+                    }
+
+                    const filtered = programs.filter(program => 
+                        program.name.toLowerCase().includes(query) ||
+                        program.id.toString().includes(query) ||
+                        program.client.toLowerCase().includes(query)
+                    );
+
+                    if (filtered.length > 0) {
+                        searchResults.innerHTML = filtered.map(program => 
+                            `<div class="search-result-item" onclick="selectProgram(${program.id}, '${program.name.replace(/'/g, "\\'")}', '${program.client.replace(/'/g, "\\'")}')">
+                                <div class="search-result-name">${program.name}</div>
+                                <div class="search-result-details">${program.client}</div>
+                            </div>`
+                        ).join('');
+                        searchResults.style.display = 'block';
+                    } else {
+                        searchResults.innerHTML = '<div class="search-result-item" style="cursor: default;">No programs found</div>';
+                        searchResults.style.display = 'block';
+                    }
+                });
+
+                // Hide search results when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.search-section')) {
+                        searchResults.style.display = 'none';
+                    }
+                });
+            }
+
+            // Set default date for custom service
+            const today = new Date().toISOString().split('T')[0];
+            const customServiceDate = document.getElementById('customServiceDate');
+            if (customServiceDate) {
+                customServiceDate.value = today;
+            }
+
+            // Initialize step 3 functionality if we're on that step
+            initializeStep3();
+        });
+
+        // Program selection function
+        function selectProgram(id, name, client) {
+            selectedProgramData = { id, name, client };
+            
+            // Update UI elements
+            const selectedProgramName = document.getElementById('selectedProgramName');
+            const selectedProgramDetails = document.getElementById('selectedProgramDetails');
+            const selectedProgram = document.getElementById('selectedProgram');
+            const searchResults = document.getElementById('searchResults');
+            const programSearch = document.getElementById('programSearch');
+            const step1Continue = document.getElementById('step1Continue');
+
+            if (selectedProgramName) selectedProgramName.textContent = name;
+            if (selectedProgramDetails) selectedProgramDetails.textContent = client;
+            if (selectedProgram) selectedProgram.style.display = 'block';
+            if (searchResults) searchResults.style.display = 'none';
+            if (programSearch) programSearch.value = '';
+            if (step1Continue) step1Continue.disabled = false;
+        }
+
+        // Clear selection function
+        function clearSelection() {
+            selectedProgramData = null;
+            const selectedProgram = document.getElementById('selectedProgram');
+            const step1Continue = document.getElementById('step1Continue');
+            
+            if (selectedProgram) selectedProgram.style.display = 'none';
+            if (step1Continue) step1Continue.disabled = true;
+        }
+
+        // Step 2: Package Selection
+        function selectPackage(packageType, element) {
+            selectedPackage = packageType;
+            
+            // Remove selection from all options
+            document.querySelectorAll('.package-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            element.classList.add('selected');
+            const radioInput = element.querySelector('input[type="radio"]');
+            if (radioInput) radioInput.checked = true;
+            
+            // Enable continue button
+            const step2Continue = document.getElementById('step2Continue');
+            if (step2Continue) step2Continue.disabled = false;
+        }
+
+        // Navigation functions
+        function goToStep1() {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById('step1').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToStep2() {
+            if (selectedProgramData) {
+                // Update step 2 with program info
+                const step2ProgramName = document.getElementById('step2ProgramName');
+                if (step2ProgramName) {
+                    step2ProgramName.textContent = selectedProgramData.name;
+                }
+                
+                // Show step 2
+                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+                document.getElementById('step2').classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function goToStep2_5() {
+            if (selectedProgramData && selectedPackage) {
+                // Update contact roles step with program and package info
+                const contactRolesProgramName = document.getElementById('contactRolesProgramName');
+                const contactRolesPackageName = document.getElementById('contactRolesPackageName');
+                
+                if (contactRolesProgramName) {
+                    contactRolesProgramName.textContent = selectedProgramData.name;
+                }
+                if (contactRolesPackageName) {
+                    contactRolesPackageName.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1) + ' Package';
+                }
+                
+                // Show contact roles step
+                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+                document.getElementById('step2_5').classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function goToStep3() {
+            if (selectedProgramData && selectedPackage) {
+                // Update step 3 with program and package info
+                const step3ProgramName = document.getElementById('step3ProgramName');
+                const step3PackageName = document.getElementById('step3PackageName');
+                
+                if (step3ProgramName) step3ProgramName.textContent = selectedProgramData.name;
+                if (step3PackageName) step3PackageName.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1) + ' Package';
+                
+                // Show step 3
+                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+                document.getElementById('step3').classList.add('active');
+                window.scrollTo(0, 0);
+                
+                // Initialize step 3 functionality
+                initializeStep3();
+            }
+        }
+
+        function createSLA() {
+            if (selectedProgramData && selectedPackage) {
+                // Update step 4 with program and package info
+                const slaBoardName = document.getElementById('slaBoardName');
+                const summaryProgramName = document.getElementById('summaryProgramName');
+                const summaryPackage = document.getElementById('summaryPackage');
+                
+                if (slaBoardName) slaBoardName.textContent = 'SLA-' + selectedProgramData.name.split(' ')[0];
+                if (summaryProgramName) summaryProgramName.textContent = selectedProgramData.name;
+                if (summaryPackage) summaryPackage.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1);
+                
+                // Show step 4
+                document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+                document.getElementById('step4').classList.add('active');
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function editSLA() {
+            // Go back to step 3 (SLA Configuration)
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById('step3').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function slaBoardsOverview() {
+            alert('This would take you to the SLA Boards Overview showing all programs and SLA boards.');
+        }
+
+        // Step 3: SLA Configuration functionality
+        function initializeStep3() {
+            // Initialize checkbox functionality
+            document.querySelectorAll('.include-label input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const label = this.closest('.include-label');
+                    if (this.checked) {
+                        label.classList.add('checked');
+                    } else {
+                        label.classList.remove('checked');
+                    }
+                });
+            });
+        }
+
+        // Custom Service Functions
+        function showAddServiceForm() {
+            const addServiceContainer = document.getElementById('addServiceContainer');
+            const addServiceForm = document.getElementById('addServiceForm');
+            
+            if (addServiceContainer) addServiceContainer.style.display = 'none';
+            if (addServiceForm) addServiceForm.style.display = 'block';
+        }
+
+        function cancelAddService() {
+            const addServiceForm = document.getElementById('addServiceForm');
+            const addServiceContainer = document.getElementById('addServiceContainer');
+            
+            if (addServiceForm) addServiceForm.style.display = 'none';
+            if (addServiceContainer) addServiceContainer.style.display = 'block';
+            clearServiceForm();
+        }
+
+        function clearServiceForm() {
+            const customServiceName = document.getElementById('customServiceName');
+            const customServiceDescription = document.getElementById('customServiceDescription');
+            const customServiceOccurrence = document.getElementById('customServiceOccurrence');
+            const customServiceFrequency = document.getElementById('customServiceFrequency');
+            const customServiceInclude = document.getElementById('customServiceInclude');
+            const customServiceDate = document.getElementById('customServiceDate');
+            
+            if (customServiceName) customServiceName.value = '';
+            if (customServiceDescription) customServiceDescription.value = '';
+            if (customServiceOccurrence) customServiceOccurrence.selectedIndex = 0;
+            if (customServiceFrequency) customServiceFrequency.selectedIndex = 0;
+            if (customServiceInclude) customServiceInclude.checked = true;
+            if (customServiceDate) {
+                const today = new Date().toISOString().split('T')[0];
+                customServiceDate.value = today;
+            }
+        }
+
+        function addCustomService() {
+            const name = document.getElementById('customServiceName').value.trim();
+            const description = document.getElementById('customServiceDescription').value.trim();
+            const category = "Other";
+            const occurrence = document.getElementById('customServiceOccurrence').value;
+            const frequency = document.getElementById('customServiceFrequency').value;
+            const include = document.getElementById('customServiceInclude').checked;
+            const startDate = document.getElementById('customServiceDate').value;
+
+            if (!name) {
+                alert('Please enter a service name');
+                return;
+            }
+
+            // Format the start date
+            const formattedDate = new Date(startDate).toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric'
+            });
+
+            // Add row to custom services table
+            const customServicesBody = document.getElementById('customServicesBody');
+            const customServicesTable = document.getElementById('customServicesTable');
+            
+            if (customServicesBody) {
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>
+                        <div class="service-name">${name}</div>
+                        <div class="service-description">${description}</div>
+                    </td>
+                    <td>
+                        <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">${category}</div>
+                    </td>
+                    <td>
+                        <select class="dropdown">
+                            <option ${occurrence === 'Included' ? 'selected' : ''}>Included</option>
+                            <option ${occurrence === 'Upon Request' ? 'selected' : ''}>Upon Request</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="dropdown">
+                            <option ${frequency === 'One Time' ? 'selected' : ''}>One Time</option>
+                            <option ${frequency === 'Weekly' ? 'selected' : ''}>Weekly</option>
+                            <option ${frequency === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                            <option ${frequency === 'Quarterly' ? 'selected' : ''}>Quarterly</option>
+                            <option ${frequency === 'Bi-Annually' ? 'selected' : ''}>Bi-Annually</option>
+                            <option ${frequency === 'Annually' ? 'selected' : ''}>Annually</option>
+                            <option ${frequency === 'Ongoing' ? 'selected' : ''}>Ongoing</option>
+                        </select>
+                    </td>
+                    <td>
+                        <label class="include-label ${include ? 'checked' : ''}">
+                            <input type="checkbox" ${include ? 'checked' : ''}> Yes
+                        </label>
+                    </td>
+                    <td>
+                        <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">${formattedDate}</div>
+                    </td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem;" onclick="removeCustomService(this)">Remove</button>
+                    </td>
+                `;
+
+                customServicesBody.appendChild(newRow);
+
+                // Add event listener to the new checkbox
+                const newCheckbox = newRow.querySelector('.include-label input[type="checkbox"]');
+                if (newCheckbox) {
+                    newCheckbox.addEventListener('change', function() {
+                        const label = this.closest('.include-label');
+                        if (this.checked) {
+                            label.classList.add('checked');
+                        } else {
+                            label.classList.remove('checked');
+                        }
+                    });
+                }
+            }
+
+            // Show the custom services table
+            if (customServicesTable) customServicesTable.style.display = 'table';
+
+            // Hide form and show add button
+            cancelAddService();
+        }
+
+        function removeCustomService(button) {
+            const row = button.closest('tr');
+            if (row) row.remove();
+            
+            // Hide table if no custom services remain
+            const customServicesBody = document.getElementById('customServicesBody');
+            const customServicesTable = document.getElementById('customServicesTable');
+            
+            if (customServicesBody && customServicesBody.children.length === 0) {
+                if (customServicesTable) customServicesTable.style.display = 'none';
+            }
+        }
+
+        // Contact Roles Functions
+        function openProgram() {
+            alert('This would open the ' + (selectedProgramData ? selectedProgramData.name : 'program') + ' details page.');
+        }
+
+        function openSelectedProgram() {
+            alert('This would open the ' + (selectedProgramData ? selectedProgramData.name : 'program') + ' details page.');
+        }
+
+        function openProgramFromStep2() {
+            alert('This would open the ' + (selectedProgramData ? selectedProgramData.name : 'program') + ' details page.');
+        }
+
+        function openSignedProduct() {
+            alert('This would open the Signed Product record where you can edit contact roles.');
+        }
+    </script>
 </body>
 </html>
-                    
+                    
+

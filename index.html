@@ -471,7 +471,7 @@
                 </div>
 
                 <div class="search-section">
-                    <h2 class="section-title">Search Program:</h2>
+                    <h2 class="section-title">Search for a program:</h2>
                     
                     <input 
                         type="text" 
@@ -570,7 +570,8 @@
                 <!-- Selected Program Section -->
                 <div style="background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 16px; margin-bottom: 24px; cursor: pointer;" onclick="openProgram()">
                     <div style="color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Selected Program:</div>
-                    <div style="font-weight: 600; color: #0176D3; font-size: 1rem; text-decoration: underline;" id="contactRolesProgramName">TechCorp Affiliate Program</div>
+                    <div style="font-weight: 600; color: #0176D3; font-size: 1rem; text-decoration: underline; margin-bottom: 4px;" id="contactRolesProgramName">TechCorp Affiliate Program</div>
+                    <div style="font-weight: 600; color: #181818; font-size: 0.875rem;" id="contactRolesPackageName">Premium Package</div>
                 </div>
 
                 <div style="margin-bottom: 32px;">
@@ -637,10 +638,16 @@
         <div class="container">
             <div class="header">
                 <h1 id="step3Header">SLA Configuration</h1>
-                <p id="step3Package"><strong>Program:</strong> <span id="step3ProgramName">Program Name</span> • <strong>Package:</strong> <span id="step3PackageName">Premium</span></p>
             </div>
 
             <div class="content">
+                <!-- Selected Program Section -->
+                <div style="background: #F8F9FA; border: 1px solid #E5E5E5; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
+                    <div style="color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Selected Program:</div>
+                    <div style="font-weight: 600; color: #0176D3; font-size: 1rem; text-decoration: underline; cursor: pointer; margin-bottom: 4px;" id="step3ProgramName" onclick="openProgram()">TechCorp Affiliate Program</div>
+                    <div style="font-weight: 600; color: #181818; font-size: 0.875rem;" id="step3PackageName">Premium Package</div>
+                </div>
+
                 <div style="margin-bottom: 32px;">
                     <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">🎯 SLA Configuration – Review the frequency and occurrence of each service, and choose which services to include for the client. These will appear in your task list after you create the SLA board.</p>
                 </div>
@@ -655,7 +662,7 @@
                                 <th>Occurrence</th>
                                 <th>Frequency</th>
                                 <th>Include for Client</th>
-                                <th>Start Date</th>
+                                <th>Reference Date</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -849,7 +856,7 @@
                                 <th>Occurrence</th>
                                 <th>Frequency</th>
                                 <th>Include for Client</th>
-                                <th>Start Date</th>
+                                <th>Reference Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -878,7 +885,7 @@
                         </div>
                         
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Start Date</label>
+                            <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Reference Date</label>
                             <input type="date" id="customServiceDate" class="search-input" style="margin-bottom: 0; width: 50%;">
                         </div>
                         
@@ -944,7 +951,7 @@
                 <div class="summary"></div>
                 <div>
                     <button class="btn btn-secondary" onclick="goToStep2()">Go Back</button>
-                    <button class="btn btn-primary" style="margin-left: 12px;" onclick="createSLA()">Create SLA</button>
+                    <button class="btn btn-primary" style="margin-left: 12px;" onclick="createSLA()">Create SLA Board</button>
                 </div>
             </div>
         </div>
@@ -988,12 +995,12 @@
                     
                     <div class="grid-2-small">
                         <div class="field-group">
-                            <label class="field-label">Program Name</label>
-                            <div class="field-value" style="color: #0176D3; text-decoration: underline; cursor: pointer;" id="summaryProgramName" onclick="alert('This would open the program details page')">TechCorp Affiliate Program</div>
-                        </div>
-                        <div class="field-group">
                             <label class="field-label">Package</label>
                             <div class="field-value" id="summaryPackage">Premium</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Program Name</label>
+                            <div class="field-value" style="color: #0176D3; text-decoration: underline; cursor: pointer;" id="summaryProgramName" onclick="alert('This would open the program details page')">TechCorp Affiliate Program</div>
                         </div>
                         <div class="field-group">
                             <label class="field-label">Awin ID</label>
@@ -1170,10 +1177,15 @@
 
         function goToStep2_5() {
             if (selectedProgramData && selectedPackage) {
-                // Update contact roles step with program info
+                // Update contact roles step with program and package info
                 const contactRolesProgramName = document.getElementById('contactRolesProgramName');
+                const contactRolesPackageName = document.getElementById('contactRolesPackageName');
+                
                 if (contactRolesProgramName) {
                     contactRolesProgramName.textContent = selectedProgramData.name;
+                }
+                if (contactRolesPackageName) {
+                    contactRolesPackageName.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1) + ' Package';
                 }
                 
                 // Show contact roles step
@@ -1190,7 +1202,7 @@
                 const step3PackageName = document.getElementById('step3PackageName');
                 
                 if (step3ProgramName) step3ProgramName.textContent = selectedProgramData.name;
-                if (step3PackageName) step3PackageName.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1);
+                if (step3PackageName) step3PackageName.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1) + ' Package';
                 
                 // Show step 3
                 document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
@@ -1403,3 +1415,4 @@
     </script>
 </body>
 </html>
+                    

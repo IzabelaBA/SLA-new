@@ -961,7 +961,7 @@
     <div id="step4" class="step">
         <div class="container">
             <div class="header">
-                <h1>SLA Board Summary</h1>
+                <h1>SLA Board Created</h1>
             </div>
 
             <div class="content">
@@ -969,69 +969,10 @@
                     <p style="color: #706E6B; font-size: 0.875rem; line-height: 1.5;">✅ SLA Status - SLA has been successfully created and configured.</p>
                 </div>
 
-                <!-- SLA Details -->
-                <div class="details-section">
-                    <h2 class="section-title">SLA Details</h2>
-                    
-                    <div class="grid-2">
-                        <div class="field-group">
-                            <label class="field-label">SLA Board Name</label>
-                            <div class="field-value primary" id="slaBoardName">SLA-TechCorp</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">SLA Board Owner</label>
-                            <div class="field-value">Chandler Bing</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Creation Date</label>
-                            <div class="field-value" id="creationDate">05/06/2025</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Program Information -->
-                <div class="details-section">
-                    <h2 class="section-title">Program Information</h2>
-                    
-                    <div class="grid-2-small">
-                        <div class="field-group">
-                            <label class="field-label">Package</label>
-                            <div class="field-value" id="summaryPackage">Premium</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Program Name</label>
-                            <div class="field-value" style="color: #0176D3; text-decoration: underline; cursor: pointer;" id="summaryProgramName" onclick="alert('This would open the program details page')">TechCorp Affiliate Program</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Awin ID</label>
-                            <div class="field-value">12345</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Business Unit</label>
-                            <div class="field-value">UK</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Business Segment</label>
-                            <div class="field-value">Managed Services</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Account Manager</label>
-                            <div class="field-value">Chandler Bing</div>
-                        </div>
-                        <div class="field-group">
-                            <label class="field-label">Program Status</label>
-                            <div class="field-value success">Live</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="actions">
-                <div class="summary"></div>
-                <div class="button-group">
-                    <button class="btn btn-secondary" onclick="editSLA()">Edit SLA</button>
-                    <button class="btn btn-secondary" onclick="slaBoardsOverview()">SLA Boards Overview</button>
-                    <button class="btn btn-primary" onclick="goToStep1()">Create New SLA Board</button>
+                <!-- SLA Board Link -->
+                <div style="text-align: center; padding: 40px 20px;">
+                    <div style="font-size: 1.125rem; color: #3E3E3C; margin-bottom: 16px;">Your SLA Board:</div>
+                    <a href="#" onclick="openSLABoard()" style="color: #0176D3; text-decoration: underline; font-size: 1.25rem; font-weight: 600;" id="slaBoardLink">SLA-TechCorp</a>
                 </div>
             </div>
         </div>
@@ -1216,20 +1157,20 @@
 
         function createSLA() {
             if (selectedProgramData && selectedPackage) {
-                // Update step 4 with program and package info
-                const slaBoardName = document.getElementById('slaBoardName');
-                const summaryProgramName = document.getElementById('summaryProgramName');
-                const summaryPackage = document.getElementById('summaryPackage');
+                // Update step 4 with SLA board name
+                const slaBoardLink = document.getElementById('slaBoardLink');
                 
-                if (slaBoardName) slaBoardName.textContent = 'SLA-' + selectedProgramData.name.split(' ')[0];
-                if (summaryProgramName) summaryProgramName.textContent = selectedProgramData.name;
-                if (summaryPackage) summaryPackage.textContent = selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1);
+                if (slaBoardLink) slaBoardLink.textContent = 'SLA-' + selectedProgramData.name.split(' ')[0];
                 
                 // Show step 4
                 document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
                 document.getElementById('step4').classList.add('active');
                 window.scrollTo(0, 0);
             }
+        }
+
+        function openSLABoard() {
+            alert('This would open the SLA Board: ' + (selectedProgramData ? 'SLA-' + selectedProgramData.name.split(' ')[0] : 'SLA Board') + ' in Salesforce.');
         }
 
         function editSLA() {
@@ -1309,13 +1250,6 @@
                 return;
             }
 
-            // Format the start date
-            const formattedDate = new Date(startDate).toLocaleDateString('en-US', {
-                month: '2-digit',
-                day: '2-digit',
-                year: 'numeric'
-            });
-
             // Add row to custom services table
             const customServicesBody = document.getElementById('customServicesBody');
             const customServicesTable = document.getElementById('customServicesTable');
@@ -1324,8 +1258,8 @@
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
                     <td>
-                        <div class="service-name">${name}</div>
-                        <div class="service-description">${description}</div>
+                        <input type="text" class="search-input" style="margin-bottom: 4px; font-weight: 600; font-size: 0.875rem;" value="${name}" placeholder="Service name...">
+                        <textarea class="form-textarea" style="min-height: 60px; font-size: 0.75rem; color: #706E6B;" placeholder="Service description...">${description}</textarea>
                     </td>
                     <td>
                         <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">${category}</div>
@@ -1353,7 +1287,7 @@
                         </label>
                     </td>
                     <td>
-                        <div style="color: #706E6B; font-size: 0.875rem; padding: 8px 12px;">${formattedDate}</div>
+                        <input type="date" class="dropdown" style="width: 100%;" value="${startDate}">
                     </td>
                     <td>
                         <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem;" onclick="removeCustomService(this)">Remove</button>
@@ -1415,3 +1349,4 @@
     </script>
 </body>
 </html>
+                    

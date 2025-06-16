@@ -898,13 +898,14 @@
                             <div>
                                 <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Occurrence</label>
                                 <select id="customServiceOccurrence" class="dropdown" style="width: 100%;">
-                                    <option>Included</option>
+                                    <option selected>Included</option>
                                     <option>Upon Request</option>
                                 </select>
                             </div>
                             <div>
                                 <label style="display: block; font-weight: 600; color: #3E3E3C; font-size: 0.875rem; margin-bottom: 4px;">Frequency</label>
                                 <select id="customServiceFrequency" class="dropdown" style="width: 100%;">
+                                    <option value="" selected>Select frequency...</option>
                                     <option>One Time</option>
                                     <option>Weekly</option>
                                     <option>Monthly</option>
@@ -1227,8 +1228,8 @@
             
             if (customServiceName) customServiceName.value = '';
             if (customServiceDescription) customServiceDescription.value = '';
-            if (customServiceOccurrence) customServiceOccurrence.selectedIndex = 0;
-            if (customServiceFrequency) customServiceFrequency.selectedIndex = 0;
+            if (customServiceOccurrence) customServiceOccurrence.selectedIndex = 0; // "Included"
+            if (customServiceFrequency) customServiceFrequency.selectedIndex = 0; // Empty option
             if (customServiceInclude) customServiceInclude.checked = true;
             if (customServiceDate) {
                 const today = new Date().toISOString().split('T')[0];
